@@ -39,11 +39,11 @@ def get_exact_product(request, pk):
     if request.method == 'POST':
         models.UserCart.objects.create(user_id=request.user.id,
                                        user_product=find_product_from_db,
-                                       user_product_quantity=request.POST.get('user_product_quantity'),
-                                       total_for_product=find_product_from_db.product_prise*int(request.POST.get('user_product_quantity')))
+                                       user_product_quantity=request.POST.get('quantity'),
+                                       total_for_product=find_product_from_db.product_prise*int(request.POST.get('quantity')))
         return redirect('/cart')
 
-    return render(request, 'exact_product.html', context)
+    return render(request, 'about_product.html', context)
 
 
 def current_categogory(request, pk):
@@ -56,15 +56,19 @@ def current_categogory(request, pk):
 
 def get_exact_category(request, pk):
     exact_category = models.Catigory.objects.get(id=pk)
-
+    categories = models.Catigory.objects.all()
     category_products = models.Product.objects.filter(product_category=exact_category)
 
-    return render(request, 'exact_category.html', {'category_products': category_products})
+    return render(request, 'categrory_products.html', {'category_products': category_products, 'categories': categories})
 
 
 def get_user_cart(request):
     user_cart = models.UserCart.objects.filter(user_id=request.user.id)
-    return render(request, 'user_cart.html', {'cart': user_cart})
+    total = sum([i.total_for_product for i in user_cart])
+
+    context = {'cart': user_cart, 'total': total}
+
+    return render(request, 'user_cart.html', context)
 
 
 def complete_order(request):
